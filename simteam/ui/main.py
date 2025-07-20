@@ -23,7 +23,8 @@ host = parsed.hostname  # e.g. 'localhost' or 'yourdomain.com'
 if host in ["localhost", "127.0.0.1"]:
     base_url = "http://localhost:10000"
 else:
-    base_url = f"{parsed.scheme}://{parsed.netloc}"
+    # base_url = f"{parsed.scheme}://{parsed.netloc}"
+    base_url = "https://simteam-backend-fastapi-299036431019.asia-northeast1.run.app"
 
 # Final API URL
 API_URL = urljoin(base_url, API_ENDPOINT)
