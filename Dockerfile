@@ -15,6 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log
 
+COPY nginx.template.conf /etc/nginx/nginx.template.conf
+
 # Expose common ports
 EXPOSE 8501 10000 80
 
@@ -23,5 +25,5 @@ CMD sh -c "\
     python create_db.py && \
     python run_app.py & \
     echo 'Render PORT is: $PORT' && \
-    envsubst '\$PORT' < /nginx.template.conf > /etc/nginx/nginx.conf && \
+    envsubst '\$PORT' < /etc/nginx/nginx.template.conf > /etc/nginx/nginx.conf && \
     nginx -g 'daemon off;'"
