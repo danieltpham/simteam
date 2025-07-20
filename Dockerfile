@@ -22,7 +22,10 @@ CMD sh -c "\
   python run_app.py & \
   echo 'Waiting for Streamlit on 8501...' && \
   while ! nc -z localhost 8501; do sleep 1; done && \
-  echo 'Streamlit up!' && \
+  echo 'Waiting for FastAPI on 10000...' && \
+  while ! nc -z localhost 10000; do sleep 1; done && \
+  echo 'Both services are up. Starting NGINX.' && \
   envsubst '\$PORT' < /etc/nginx/nginx.template.conf > /etc/nginx/nginx.conf && \
   nginx -g 'daemon off;'"
+
 
