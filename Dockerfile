@@ -20,7 +20,7 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log
 
 # Copy template-based NGINX config
-COPY nginx.template.conf /etc/nginx/nginx.template.conf
+COPY /nginx.conf /nginx.conf
 
 # Expose default ports for local testing
 EXPOSE 80 10000 8501
