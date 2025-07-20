@@ -1,34 +1,27 @@
-# Dockerfile
 FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
-# Install NGINX, envsubst, and Python build tools
-RUN apt-get update && \
-    apt-get install -y nginx gettext-base && \
-    rm -rf /var/lib/apt/lists/*
+# Install system deps
+RUN apt-get update && apt-get install -y nginx gettext-base && rm -rf /var/lib/apt/lists/*
 
-# Copy all project files
+# Copy app
 COPY . .
 
-# Install Python dependencies
+# Install Python deps
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Logging to Docker stdout/stderr
+# Log to stdout
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log
 
-# Copy template-based NGINX config
-COPY /nginx.conf /nginx.conf
+# Expose common ports
+EXPOSE 8501 10000 80
 
-# Expose default ports for local testing
-EXPOSE 80 10000 8501
-
-# Start app: run Python services in background, then render + launch nginx
+# Final entrypoint
 CMD sh -c "\
     python create_db.py && \
     python run_app.py & \
-    echo 'Binding to PORT=${PORT}' && \
-    envsubst '\$PORT' < /nginx.conf > /nginx.conf && \
+    echo 'Render PORT is: $PORT' && \
+    envsubst '\$PORT' < /etc/nginx/nginx.template.conf > /etc/nginx/nginx.conf && \
     nginx -g 'daemon off;'"
