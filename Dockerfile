@@ -23,5 +23,5 @@ CMD sh -c "\
     python create_db.py && \
     python run_app.py & \
     echo 'Render PORT is: $PORT' && \
-    envsubst '\$PORT' < /etc/nginx/nginx.template.conf > /etc/nginx/nginx.conf && \
+    envsubst '\$PORT' < /nginx.template.conf > /etc/nginx/nginx.conf && \
     nginx -g 'daemon off;'"
