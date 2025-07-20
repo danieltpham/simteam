@@ -11,10 +11,6 @@ COPY . .
 # Install Python deps
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Log to stdout
-RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
-    ln -sf /dev/stderr /var/log/nginx/error.log
-
 COPY nginx.template.conf /etc/nginx/nginx.template.conf
 
 # Expose common ports
@@ -22,8 +18,11 @@ EXPOSE 8501 10000 80
 
 # Final entrypoint
 CMD sh -c "\
-    python create_db.py && \
-    python run_app.py & \
-    echo 'Render PORT is: $PORT' && \
-    envsubst '\$PORT' < /etc/nginx/nginx.template.conf > /etc/nginx/nginx.conf && \
-    nginx -g 'daemon off;'"
+  python create_db.py && \
+  python run_app.py & \
+  echo 'Waiting for Streamlit on 8501...' && \
+  while ! nc -z localhost 8501; do sleep 1; done && \
+  echo 'Streamlit up!' && \
+  envsubst '\$PORT' < /etc/nginx/nginx.template.conf > /etc/nginx/nginx.conf && \
+  nginx -g 'daemon off;'"
+
