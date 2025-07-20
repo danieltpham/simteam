@@ -26,9 +26,9 @@ services:
         condition: service_healthy
     env_file:
       - .env
-    ports:
-      - "${FASTAPI_PORT:-10000}:10000"
-      - "${STREAMLIT_PORT:-8501}:8501"
+    expose:
+      - "10000"
+      - "8501"
     volumes:
       - .:/app
     command: >
@@ -36,6 +36,18 @@ services:
         python create_db.py &&
         python run_app.py
       "
+
+  nginx:
+    image: nginx:latest
+    container_name: simteam_nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: always
+
 
 volumes:
   simteam_pgdata:

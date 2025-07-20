@@ -9,10 +9,14 @@ def run_fastapi():
 
 
 def run_streamlit():
-    subprocess.run(
-        ["streamlit", "run", "simteam/ui/main.py", "--server.port", "8501"],
-        check=True,
-    )
+    subprocess.run([
+        "streamlit", "run", "simteam/ui/main.py",
+        "--server.port", "8501",
+        "--server.headless", "true",
+        "--server.enableCORS", "false",
+        "--server.enableXsrfProtection", "false"
+    ],
+        check=True)
 
 
 if __name__ == "__main__":

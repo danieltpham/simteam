@@ -5,9 +5,10 @@ from simteam.server.api.v1 import eventlog
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
-    openapi_url="/api/openapi.json"
+    root_path="/api",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
 )
 
 app.add_middleware(
@@ -18,5 +19,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(employees.router, prefix="/api/v1")
-app.include_router(eventlog.router, prefix="/api/v1")
+app.include_router(employees.router, prefix="/v1")
+app.include_router(eventlog.router, prefix="/v1")
