@@ -1,18 +1,11 @@
 # app/api/v1/employees.py
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.db.session import SessionLocal
+from app.db.session import get_db
 from app.db.models import EmployeeORM
 from simteam.core.models.base import EmployeeState
 
 router = APIRouter()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.get("/employees", response_model=list[EmployeeState])
 def list_employees(db: Session = Depends(get_db)):
