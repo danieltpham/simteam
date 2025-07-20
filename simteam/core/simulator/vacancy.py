@@ -1,0 +1,112 @@
+import random
+from datetime import datetime
+from typing import List
+
+from simteam.core.enums import Role
+from simteam.core.models.vacancy import Vacancy
+from simteam.core.utils import advance_date
+from simteam.core.enums import VACANCY_FILL_DEADLINE_DAYS
+
+# Moved to top-level constant for reuse and testability
+PROMOTE_HIRE_WEIGHTS = {
+    Role.CEO: (1, 9),               # Prefer external
+    Role.VP: (2, 8),
+    Role.DIRECTOR: (7, 3),          # Prefer promoting managers
+    Role.MANAGER: (5, 5),           # Equal SA promote or hire
+    Role.SENIOR_ANALYST: (5, 5),    # Equal Analyst promote or hire
+    Role.ANALYST: (0, 1),           # Always hire
+}
+
+class VacancyLogic:
+    """
+    Handles creation, resolution, and tracking of role vacancies.
+
+    - Vacancies are triggered by departures with direct reports.
+    - Fill logic considers weighted chance of promotion vs hire.
+    """
+
+    def create_vacancy(
+        self,
+        role: Role,
+        manager_id: str,
+        department: str,
+        team: str,
+        report_ids: List[str],
+        date: datetime,
+    ) -> None:
+        """
+        Create a new vacancy and add it to the queue.
+        """
+        deadline = advance_date(date, VACANCY_FILL_DEADLINE_DAYS)
+        vacancy = Vacancy(
+            role=role,
+            manager_id=manager_id,
+            department=department,
+            team=team,
+            report_ids=report_ids,
+            deadline=deadline,
+        )
+        self.vacancies.append(vacancy)
+
+    def resolve_vacancies(self, date: datetime) -> None:
+        """
+        Attempt to resolve each open vacancy (by promotion or hiring).
+        """
+        still_open = []
+        for vacancy in self.vacancies:
+            if self.is_vacancy_expired(vacancy, date):
+                continue
+            filled = self.try_fill_vacancy(vacancy, date)
+            if not filled:
+                still_open.append(vacancy)
+        self.vacancies = still_open
+
+    def try_fill_vacancy(self, vacancy: Vacancy, date: datetime) -> bool:
+        """
+        Try to fill a vacancy based on role-specific strategy.
+
+        Args:
+            vacancy (Vacancy): The vacant role object.
+            date (datetime): Current simulation date.
+
+        Returns:
+            bool: True if filled, else False.
+        """
+        role = vacancy.record.role
+        strategy = PROMOTE_HIRE_WEIGHTS.get(role, (0, 1))
+        method = random.choices(["promote", "hire"], weights=strategy, k=1)[0]
+
+        emp_id = None
+        if method == "promote":
+            source = self.get_promotion_source(role)
+            emp_id = self.promote_random(from_role=source, date=date)
+
+        if not emp_id:
+            emp_id = self.hire(
+                role=role,
+                manager_id=vacancy.record.manager_id,
+                department=vacancy.record.department,
+                team=vacancy.record.team,
+                date=date,
+            )
+
+        if not emp_id:
+            return False
+
+        for report_id in vacancy.record.report_ids:
+            self.change_manager(report_id, emp_id, date)
+
+        return True
+
+    def is_vacancy_expired(self, vacancy: Vacancy, date: datetime) -> bool:
+        return date > vacancy.record.deadline
+
+    def get_promotion_source(self, to_role: Role) -> Role:
+        """
+        Get the typical role that promotes into this target role.
+        """
+        from simteam.core.simulator.promotion import PROMOTION_ORDER
+        for from_role, to in PROMOTION_ORDER.items():
+            if to == to_role:
+                return from_role
+        return to_role  # fallback
