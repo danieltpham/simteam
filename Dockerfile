@@ -30,5 +30,5 @@ CMD sh -c "\
     python create_db.py && \
     python run_app.py & \
     echo 'Binding to PORT=${PORT}' && \
-    envsubst '\$PORT' < /etc/nginx/nginx.template.conf > /etc/nginx/nginx.conf && \
+    envsubst '\$PORT' < /nginx.conf > /nginx.conf && \
     nginx -g 'daemon off;'"
