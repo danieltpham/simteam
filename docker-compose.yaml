@@ -1,36 +1,41 @@
-version: "3.8"
-
 services:
-  db:
+  postgres:
     image: postgres:15
-    container_name: simteam_postgres
-    restart: always
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+    container_name: postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - simteam_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: simteam_app
     depends_on:
-      - db
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
     ports:
-      - "${API_PORT:-10000}:10000"
+      - "${FASTAPI_PORT:-10000}:10000"
       - "${STREAMLIT_PORT:-8501}:8501"
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_PORT=${POSTGRES_PORT}
     volumes:
-      - .:/simteam
-    command: python run_app.py
+      - .:/app
+    command: >
+      sh -c "
+        python create_db.py &&
+        python run_app.py
+      "
 
 volumes:
-  pgdata:
+  simteam_pgdata:

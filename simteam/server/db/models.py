@@ -10,7 +10,8 @@ class EmployeeORM(Base):
 
     emp_id = Column(String, primary_key=True, index=True)
     role = Column(Enum(Role), nullable=False)
-    manager_id = Column(String, ForeignKey("employees.emp_id"), nullable=True)
+    manager_id = Column(String, nullable=True)
+    # manager_id = Column(String, ForeignKey("employees.emp_id"), nullable=True) # TODO: What about removed TEMP id?
     department = Column(String, nullable=True)
     team = Column(String, nullable=True)
     hire_date = Column(DateTime, nullable=False)
