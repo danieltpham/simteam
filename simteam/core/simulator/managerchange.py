@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from simteam.core.models.employee import Employee
-from simteam.core.enums import Role
+from simteam.core.enums import ALLOWED_MANAGER_MAPPING, Role
 
 
 class ManagerChangeLogic:
@@ -10,47 +10,61 @@ class ManagerChangeLogic:
 
     Enforces:
     - Manager must exist and be active
-    - New manager must have a higher role
-    - No circular reporting (cannot assign manager to their own report chain)
+    - Manager must have a higher role
+    - No circular reporting
     """
 
-    def change_manager(self, emp_id: str, new_mgr_id: str, date: datetime):
+    def change_manager(self, emp_id: str, new_mgr_id: str, date: datetime) -> bool:
         """
         Reassign an employee to a new manager, if valid.
 
-        Args:
-            emp_id (str): Employee to reassign.
-            new_mgr_id (str): Target manager.
-            date (datetime): Effective date.
+        Returns:
+            bool: True if reassignment succeeded, False otherwise.
         """
         emp = self.employees.get(emp_id)
-        new_mgr = self.employees.get(new_mgr_id)
+        new_mgr = self.employees.get(new_mgr_id) or self.temp_employees.get(new_mgr_id)
 
         if not emp or not new_mgr:
-            return  # Employee or manager not found
+            return False
 
         if not emp.state.active or not new_mgr.state.active:
-            return  # Either not active
+            return False
 
-        if not self.is_higher_role(new_mgr.state.role, emp.state.role):
-            return  # Manager must be higher in org
+        if not self.is_valid_manager_assignment(emp.state.role, new_mgr.state.role):
+            return False
 
         if self.is_circular(emp_id, new_mgr_id):
-            return  # Prevent indirect cycles
+            return False
 
         emp.change_manager(new_mgr_id, date)
         self.event_log.append(emp.state.history[-1])
+        return True
+    
+    def is_valid_manager_assignment(self, emp_role: Role, mgr_role: Role) -> bool:
+        """
+        Check if manager's role is a valid direct supervisor for the employee's role.
+        """
+        allowed_roles = ALLOWED_MANAGER_MAPPING.get(emp_role, set())
+        return mgr_role in allowed_roles
 
-    def is_higher_role(self, manager_role: Role, emp_role: Role) -> bool:
+
+    def is_higher_role(self, manager_role: Role, emp_role: Role, manager_id: str = "") -> bool:
         """
-        Compare role hierarchy to ensure manager is senior to employee.
+        Ensure manager is more senior than employee.
+
+        TEMP managers are always allowed to be assigned, even if they have the same or lower role.
         """
+        if manager_id.startswith("TEMP"):
+            return True
+
         return Role.get_level(manager_role) < Role.get_level(emp_role)
 
     def is_circular(self, emp_id: str, new_mgr_id: str) -> bool:
         """
-        Check for circular reporting: employee should not be reassigned
-        to someone in their own report chain.
+        Check for circular reporting by walking up the new manager's chain.
+
+        Returns:
+            bool: True if the employee is in their own manager chain.
         """
         visited = set()
         current = new_mgr_id

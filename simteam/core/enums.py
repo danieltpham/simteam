@@ -8,6 +8,22 @@ class Role(str, Enum):
     MANAGER = "Manager"
     SENIOR_ANALYST = "Senior Analyst"
     ANALYST = "Analyst"
+    
+    @staticmethod
+    def get_level(role: "Role") -> int:
+        """
+        Return the numeric hierarchy level of a role.
+        Lower is higher in the org.
+        """
+        hierarchy = {
+            Role.CEO: 0,
+            Role.VP: 1,
+            Role.DIRECTOR: 2,
+            Role.MANAGER: 3,
+            Role.SENIOR_ANALYST: 4,
+            Role.ANALYST: 5,
+        }
+        return hierarchy[role]
 
 
 class EventType(str, Enum):
@@ -21,10 +37,10 @@ class EventType(str, Enum):
 ROLE_QUOTAS = {
     Role.CEO: 1,
     Role.VP: 3,
-    Role.DIRECTOR: 20,     # max 5 per VP
-    Role.MANAGER: 50,      # max 5 per Director
-    Role.SENIOR_ANALYST: 100,
-    Role.ANALYST: 100,
+    Role.DIRECTOR: 10,     # max 4 per VP
+    Role.MANAGER: 10,      # max 5 per Director
+    Role.SENIOR_ANALYST: 30,
+    Role.ANALYST: 50,
 }
 
 # Maximum number of employees allowed in the simulation
@@ -41,3 +57,19 @@ VACANCY_FILL_DEADLINE_DAYS = 14
 
 # Minimum number of employees before "leaving" is allowed
 MIN_EMPLOYEES_FOR_LEAVING = 30
+
+ALLOWED_MANAGER_MAPPING = {
+    Role.ANALYST: {Role.SENIOR_ANALYST, Role.MANAGER},
+    Role.SENIOR_ANALYST: {Role.MANAGER},
+    Role.MANAGER: {Role.DIRECTOR},
+    Role.DIRECTOR: {Role.VP},
+    Role.VP: {Role.CEO},
+}
+
+PROMOTION_ORDER = {
+    Role.ANALYST: Role.SENIOR_ANALYST,
+    Role.SENIOR_ANALYST: Role.MANAGER,
+    Role.MANAGER: Role.DIRECTOR,
+    Role.DIRECTOR: Role.VP,
+    Role.VP: Role.CEO,
+}

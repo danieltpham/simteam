@@ -30,7 +30,23 @@ class OrgSimulator(
     """
 
     def __init__(self, start_date: datetime):
-        super().__init__(start_date)
+        BaseOrgSimulator.__init__(self, start_date)
+        DailyEventEngine.__init__(self)
+        self.init_org(start_date)
+        
+    def init_org(self, date: datetime):
+        """
+        Create initial CEO and VPs so that org structure is bootstrapped.
+        """
+        ceo_id = self.hire(
+            role=Role.CEO,
+            manager_id=None,
+            department=None,
+            team=None,
+            date=date,
+        )
+        if not ceo_id:
+            return
 
     def simulate_one_day(self):
         """
@@ -39,7 +55,6 @@ class OrgSimulator(
         - Generate and execute daily events
         - Advance date
         """
-        self.resolve_vacancies(self.today)
         self.generate_daily_events(self.today)
         self.today += timedelta(days=1)
 
@@ -58,7 +73,7 @@ class OrgSimulator(
         """
         managers = [
             e for e in self.employees.values()
-            if e.state.active and e.state.role in {Role.MANAGER, Role.SENIOR_ANALYST}
+            if e.state.active and e.state.role == Role.MANAGER
         ]
         if not managers:
             return

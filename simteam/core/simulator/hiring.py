@@ -1,4 +1,5 @@
 from datetime import datetime
+import random
 from typing import Optional
 
 from simteam.core.enums import Role, ROLE_QUOTAS, MAX_EMPLOYEES
@@ -33,12 +34,12 @@ class HiringLogic:
         """
         
         # Must not exceed total
-        if len(self.employees) >= MAX_EMPLOYEES:
+        if len(self.active_employees) >= MAX_EMPLOYEES:
             return None
 
         # Must not exceed role quota
         current_count = sum(
-            1 for e in self.employees.values()
+            1 for e in self.active_employees
             if e.state.active and e.state.role == role
         )
         if current_count >= ROLE_QUOTAS[role]:
@@ -50,6 +51,7 @@ class HiringLogic:
             mgr = self.employees.get(manager_id)
             if not mgr or not mgr.state.active:
                 return None
+        
 
         # Only assign dept/team if below VP
         assign_structure = role in {
@@ -60,14 +62,47 @@ class HiringLogic:
         }
 
         emp_id = self.generate_emp_id()
-        new_emp = Employee(
+        new_emp = Employee.create(
             emp_id=emp_id,
             role=role,
             hire_date=date,
             manager_id=manager_id,
-            department=department if assign_structure else None,
-            team=team if assign_structure else None,
+            department=department,
+            team=team
         )
         self.employees[emp_id] = new_emp
         self.event_log.append(new_emp.state.history[-1])
+        
+        # Create subordinate vacancies if this is a managerial role
+        
+        if role not in [Role.SENIOR_ANALYST, Role.ANALYST]:
+            # Define what the subordinate role should be
+            subordinate_role = {
+                Role.CEO: Role.VP,
+                Role.VP: Role.DIRECTOR,
+                Role.DIRECTOR: Role.MANAGER,
+                Role.MANAGER: random.choice([Role.SENIOR_ANALYST, Role.ANALYST]),
+            }.get(role)
+            
+            if subordinate_role:
+                # Count how many already exist in this department/team
+                current = sum(
+                    1 for e in self.active_employees
+                    if e.state.active
+                    and e.state.role == subordinate_role
+                    and e.state.manager_id == emp_id
+                )
+                quota = ROLE_QUOTAS[subordinate_role]
+                n_vacancies = max(0, quota - current)
+                
+                for _ in range(n_vacancies):
+                    self.create_vacancy(
+                        role=subordinate_role,
+                        manager_id=emp_id,
+                        department=new_emp.state.department,
+                        team=new_emp.state.team,
+                        report_ids=[],
+                        date=date,
+                    )
+        
         return emp_id

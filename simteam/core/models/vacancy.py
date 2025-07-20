@@ -1,38 +1,32 @@
 from datetime import datetime
 from typing import List, Optional
 
+from pydantic import BaseModel, Field
+
 from simteam.core.enums import Role
 from simteam.core.models.base import VacancyRecord
 
 
-class Vacancy:
+class Vacancy(BaseModel):
     """
-    Represents a role vacancy in the organisation.
-
-    Stores metadata about the vacant position and associated team structure.
+    Wraps a VacancyRecord and provides convenience methods.
     """
+    record: VacancyRecord = Field(..., description="Details of the open vacancy")
 
-    def __init__(
-        self,
+    @classmethod
+    def create(
+        cls,
         role: Role,
         manager_id: Optional[str],
         department: Optional[str],
         team: Optional[str],
         report_ids: List[str],
         deadline: datetime,
-    ):
+    ) -> "Vacancy":
         """
-        Initialise a new vacancy record.
-
-        Args:
-            role (Role): The role that is vacant.
-            manager_id (Optional[str]): Manager to whom the new hire would report.
-            department (Optional[str]): Department of the vacancy.
-            team (Optional[str]): Team name under the vacancy (if any).
-            report_ids (List[str]): IDs of direct reports affected by this vacancy.
-            deadline (datetime): Date by which the vacancy must be filled.
+        Factory method to create a new vacancy with required fields.
         """
-        self.record = VacancyRecord(
+        record = VacancyRecord(
             role=role,
             manager_id=manager_id,
             department=department,
@@ -40,6 +34,7 @@ class Vacancy:
             report_ids=report_ids,
             deadline=deadline,
         )
+        return cls(record=record)
 
     @property
     def is_expired(self) -> bool:
@@ -47,5 +42,4 @@ class Vacancy:
         Returns:
             bool: True if the vacancy deadline has passed, False otherwise.
         """
-        from datetime import datetime
         return datetime.now() > self.record.deadline

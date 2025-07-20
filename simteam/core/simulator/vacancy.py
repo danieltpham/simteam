@@ -38,7 +38,7 @@ class VacancyLogic:
         Create a new vacancy and add it to the queue.
         """
         deadline = advance_date(date, VACANCY_FILL_DEADLINE_DAYS)
-        vacancy = Vacancy(
+        vacancy = Vacancy.create(
             role=role,
             manager_id=manager_id,
             department=department,
@@ -48,53 +48,84 @@ class VacancyLogic:
         )
         self.vacancies.append(vacancy)
 
-    def resolve_vacancies(self, date: datetime) -> None:
+    def resolve_vacancies(self, date: datetime, max_fill: int = None) -> int:
         """
-        Attempt to resolve each open vacancy (by promotion or hiring).
+        Attempt to resolve open vacancies (by promotion or hiring), up to a maximum number.
+
+        Args:
+            date (datetime): Current simulation date.
+            max_fill (int, optional): Maximum number of fills to perform today. If None, unlimited.
+
+        Returns:
+            int: Number of vacancies successfully filled.
         """
         still_open = []
+        filled_count = 0
+
         for vacancy in self.vacancies:
             if self.is_vacancy_expired(vacancy, date):
                 continue
-            filled = self.try_fill_vacancy(vacancy, date)
-            if not filled:
+
+            if max_fill is not None and filled_count >= max_fill:
                 still_open.append(vacancy)
+                continue
+
+            filled = self.try_fill_vacancy(vacancy, date)
+            if filled:
+                filled_count += 1
+            else:
+                still_open.append(vacancy)
+
         self.vacancies = still_open
+        return filled_count
 
     def try_fill_vacancy(self, vacancy: Vacancy, date: datetime) -> bool:
         """
-        Try to fill a vacancy based on role-specific strategy.
+        Attempt to fill a given vacancy via promotion or hiring,
+        and reassigns reportees. Automatically cleans up TEMP placeholders.
 
         Args:
             vacancy (Vacancy): The vacant role object.
             date (datetime): Current simulation date.
 
         Returns:
-            bool: True if filled, else False.
+            bool: True if vacancy successfully filled, False otherwise.
         """
         role = vacancy.record.role
-        strategy = PROMOTE_HIRE_WEIGHTS.get(role, (0, 1))
+        manager_id = vacancy.record.manager_id
+        department = vacancy.record.department
+        team = vacancy.record.team
+        report_ids = vacancy.record.report_ids
+
+        # Step 1: Choose method based on defined promotion/hiring weights
+        strategy = PROMOTE_HIRE_WEIGHTS.get(role, (0, 1))  # default: always hire
         method = random.choices(["promote", "hire"], weights=strategy, k=1)[0]
 
+        # Step 2: Attempt promotion or fallback to hire
         emp_id = None
         if method == "promote":
-            source = self.get_promotion_source(role)
-            emp_id = self.promote_random(from_role=source, date=date)
+            from_role = self.get_promotion_source(role)
+            emp_id = self.promote_random(from_role=from_role, date=date)
 
         if not emp_id:
             emp_id = self.hire(
                 role=role,
-                manager_id=vacancy.record.manager_id,
-                department=vacancy.record.department,
-                team=vacancy.record.team,
+                manager_id=manager_id,
+                department=department,
+                team=team,
                 date=date,
             )
 
         if not emp_id:
             return False
 
-        for report_id in vacancy.record.report_ids:
+        # Step 3: Reassign reportees to new employee
+        for report_id in report_ids:
             self.change_manager(report_id, emp_id, date)
+
+        # Step 4: Auto-remove TEMP placeholder manager
+        if vacancy.record.manager_id and vacancy.record.manager_id.startswith("TEMP"):
+            self.temp_employees.pop(vacancy.record.manager_id, None)
 
         return True
 
