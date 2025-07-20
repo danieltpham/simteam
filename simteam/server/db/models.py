@@ -1,7 +1,7 @@
 # app/db/models.py
 from sqlalchemy import Column, String, DateTime, Boolean, Enum, ForeignKey, Integer
 from sqlalchemy.orm import relationship
-from simteam.app.db.session import Base
+from simteam.server.db.session import Base
 from simteam.core.enums import Role, EventType
 
 

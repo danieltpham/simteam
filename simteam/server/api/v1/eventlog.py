@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from simteam.core.models.base import EventLog
-from simteam.app.db.models import EventLogORM
-from simteam.app.db.session import get_db
+from simteam.server.db.models import EventLogORM
+from simteam.server.db.session import get_db
 from simteam.core.enums import Role, EventType
 
 from datetime import datetime

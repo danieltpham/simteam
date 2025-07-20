@@ -4,16 +4,18 @@ pandas>=2.2.0
 numpy>=1.24.0
 scipy>=1.10.0
 faker>=37.4.0
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+pydantic
+python-dotenv
 
 # Visualisation
 plotly>=5.18.0
 networkx>=3.2.0
 matplotlib>=3.7.0
 
-# Streamlit plugins for interactivity & terminal display
-streamlit-plotly-events
-git+https://github.com/takahc/streamlit-terminal
-
-# Optional: for better typing, linting, logs
-rich>=13.7.0
-python-dotenv>=1.0.1
+# # Streamlit plugins for interactivity & terminal display
+# streamlit-plotly-events
+# git+https://github.com/takahc/streamlit-terminal
