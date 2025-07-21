@@ -45,6 +45,7 @@ class LeavingLogic:
             # Reassign direct reports to the placeholder
             for report_id in report_ids:
                 self.employees[report_id].change_manager(placeholder_id, date)
+                self.event_log.append(self.employees[report_id].state.history[-1])
 
             temp_manager_id = placeholder_id
         else:
