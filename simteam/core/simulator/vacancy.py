@@ -123,10 +123,6 @@ class VacancyLogic:
         for report_id in report_ids:
             self.change_manager(report_id, emp_id, date)
 
-        # Step 4: Auto-remove TEMP placeholder manager
-        if vacancy.record.manager_id and vacancy.record.manager_id.startswith("TEMP"):
-            self.temp_employees.pop(vacancy.record.manager_id, None)
-
         return True
 
     def is_vacancy_expired(self, vacancy: Vacancy, date: datetime) -> bool:

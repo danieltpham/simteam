@@ -73,6 +73,7 @@ class PromotionLogic:
         new_mgr_id = self.find_valid_manager(selected.state.emp_id, to_role)
         if new_mgr_id:
             self.change_manager(selected.state.emp_id, new_mgr_id, date)
+            self.event_log.append(selected.state.history[-1])
 
         return selected.state.emp_id
 
