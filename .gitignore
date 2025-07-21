@@ -8,7 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+# build/
 develop-eggs/
 dist/
 downloads/
@@ -210,4 +210,6 @@ __marimo__/
 *.db
 
 # React
+node_modules/
 **/node_modules/*
+/simteam/ui/components/hello_component
