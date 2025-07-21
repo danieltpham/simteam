@@ -8,7 +8,7 @@ def build_org_structure(df: pd.DataFrame, temp_list: Dict, date: Optional[str] =
         df = df[df["date"] <= pd.to_datetime(date)]
 
     latest = df.sort_index(ascending=False).drop_duplicates("employee_id", keep='first')
-    active = latest[latest["event_type"] != "first"]
+    active = latest[latest["event_type"] != "left"]
 
     def fake_img(id): return f"https://bumbeishvili.github.io/avatars/avatars/portrait{id}.png"
 
@@ -33,7 +33,7 @@ def build_org_structure(df: pd.DataFrame, temp_list: Dict, date: Optional[str] =
     temps = [
         {"id": temp_id,
          "parentId": temp_list[temp_id],
-         "name": "Empty position",
+         "name": "NEED TO FILL",
          "positionName": "Empty position",
          "imageUrl": fake_img(130),
          } for temp_id in temp_ids]
