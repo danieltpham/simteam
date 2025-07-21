@@ -1,8 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   withStreamlitConnection,
-  StreamlitComponentBase,
-  Streamlit,
   ComponentProps,
 } from "streamlit-component-lib";
 import { OrgChart } from "d3-org-chart";
@@ -29,20 +27,55 @@ const OrgChartWrapper = (props: ComponentProps) => {
     new OrgChart()
       .container(container)
       .data(data)
-      .nodeHeight(() => 120)
-      .childrenMargin(() => 40)
+      .rootMargin(100)
+      .nodeWidth((d:any) => 210)
+      .nodeHeight((d:any) => 140)
+      .childrenMargin((d:any) => 130)
+      .compactMarginBetween((d:any) => 75)
+      .compactMarginPair((d:any) => 80)
       .compact(false)
-      .nodeContent((d: any) => `
-        <div style="
-          padding:8px;
-          background:#fff;
-          border:1px solid #ccc;
-          border-radius:4px;
-        ">
-          <strong>${d.data.name} ${d.data.lastName}</strong><br/>
-          <small>${d.data.position}</small>
-        </div>
-      `)
+      .nodeContent((d: any) => {
+        const colors = [
+          "#6E6B6F",
+          "#18A8B6",
+          "#F45754",
+          "#96C62C",
+          "#BD7E16",
+          "#802F74",
+        ];
+        const color = colors[d.depth % colors.length];
+        const imageDim = 80;
+        const lightCircleDim = 95;
+        const outsideCircleDim = 110;
+
+        return `
+          <div style="background-color:white; position:absolute;width:${d.width}px;height:${d.height}px;">
+            <div style="background-color:${color};position:absolute;margin-top:-${outsideCircleDim / 2}px;margin-left:${
+          d.width / 2 - outsideCircleDim / 2
+        }px;border-radius:100px;width:${outsideCircleDim}px;height:${outsideCircleDim}px;"></div>
+            <div style="background-color:#ffffff;position:absolute;margin-top:-${
+              lightCircleDim / 2
+            }px;margin-left:${
+          d.width / 2 - lightCircleDim / 2
+        }px;border-radius:100px;width:${lightCircleDim}px;height:${lightCircleDim}px;"></div>
+            <img src="${d.data.imageUrl}" style="position:absolute;margin-top:-${
+          imageDim / 2
+        }px;margin-left:${
+          d.width / 2 - imageDim / 2
+        }px;border-radius:100px;width:${imageDim}px;height:${imageDim}px;" />
+            <div class="card" style="top:${
+              outsideCircleDim / 2 + 10
+            }px;position:absolute;height:30px;width:${d.width}px;background-color:#3AB6E3;">
+              <div style="background-color:${color};height:28px;text-align:center;padding-top:10px;color:#ffffff;font-weight:bold;font-size:16px">
+                ${d.data.name}
+              </div>
+              <div style="background-color:#F0EDEF;height:28px;text-align:center;padding-top:10px;color:#424142;font-size:16px">
+                ${d.data.positionName}
+              </div>
+            </div>
+          </div>
+        `;
+      })
       .svgWidth(width)
       .svgHeight(height)
       .render()

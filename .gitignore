@@ -212,4 +212,4 @@ __marimo__/
 # React
 node_modules/
 **/node_modules/*
-/simteam/ui/components/hello_component
+**/test.ipynb
