@@ -21,7 +21,7 @@ def run_streamlit():
 
 
 if __name__ == "__main__":
-    fastapi_thread = threading.Thread(target=run_fastapi, daemon=True)
-    fastapi_thread.start()
-    time.sleep(1)
+    # fastapi_thread = threading.Thread(target=run_fastapi, daemon=True)
+    # fastapi_thread.start()
+    # time.sleep(1)
     run_streamlit()
