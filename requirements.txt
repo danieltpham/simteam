@@ -20,6 +20,7 @@ matplotlib>=3.7.0
 langchain-experimental==0.3.4
 langchain==0.3.*
 langchain-openai==0.3.28
+pydantic-ai>=0.4.9
 
 # # Streamlit plugins for interactivity & terminal display
 # streamlit-plotly-events
