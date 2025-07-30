@@ -16,6 +16,11 @@ plotly>=5.18.0
 networkx>=3.2.0
 matplotlib>=3.7.0
 
+# AI
+langchain-experimental==0.3.4
+langchain==0.3.*
+langchain-openai==0.3.28
+
 # # Streamlit plugins for interactivity & terminal display
 # streamlit-plotly-events
 # git+https://github.com/takahc/streamlit-terminal
