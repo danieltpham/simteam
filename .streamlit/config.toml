@@ -1,0 +1,8 @@
+[theme]
+base = "dark"
+primaryColor = "#00F0FF"
+backgroundColor = "#0B0F1A"
+secondaryBackgroundColor = "#141C2B"
+textColor = "#D8F3FF"
+font = "Quantico"
+headingFont = "Orbitron"
