@@ -1,11 +1,15 @@
 from datetime import datetime
+from itertools import pairwise
 import json
 from typing import Dict, List
 
+from simteam.core.config import SimulationConfig, get_default_config
 from simteam.core.models.employee import Employee
 from simteam.core.models.vacancy import Vacancy
 from simteam.core.models.base import EmployeeState, EventLog, VacancyRecord
 
+from statistics import mean, median, stdev
+from collections import defaultdict, Counter
 
 class BaseOrgSimulator:
     """
@@ -14,14 +18,16 @@ class BaseOrgSimulator:
     This is extended by logic-specific mixins (e.g. HiringLogic, VacancyLogic).
     """
 
-    def __init__(self, start_date: datetime):
+    def __init__(self, start_date: datetime, config: SimulationConfig = get_default_config()):
         """
         Initialise the shared simulation environment.
 
         Args:
             start_date (datetime): The first day of simulation.
+            config (SimulationConfig): Model parameters
         """
         self.start_date = start_date
+        self.config = config
         self.today = start_date
         self.emp_counter = 0
 
@@ -122,3 +128,63 @@ class BaseOrgSimulator:
             sim.event_log.append(EventLog(**edata))
 
         return sim
+    
+    @staticmethod
+    def _team_size_skew(employees: list[Employee], role: str) -> float:
+        """
+        Returns mean/median ratio of direct report counts for active managers at a given role.
+        """
+        managers = [e for e in employees if e.state.role == role]
+        team_sizes = [
+            len([ee for ee in employees if ee.state.manager_id == m.state.emp_id])
+            for m in managers
+        ]
+        if not team_sizes or median(team_sizes) == 0:
+            return 0.0
+        return round(mean(team_sizes) / median(team_sizes), 3)
+    
+    @staticmethod
+    def _mean_days_between(event_type: str, log: list[EventLog]) -> float:
+        """Compute mean days between events of the same type."""
+        dates = sorted([e.date for e in log if e.event_type == event_type])
+        if len(dates) < 2:
+            return 0.0
+        gaps = [(b - a).days for a, b in pairwise(dates)]
+        return round(mean(gaps), 2)
+
+    def compute_hiring_statistics(self) -> dict:
+        """
+        Collect scalar, non-temporal summary metrics of the simulation outcome.
+        """
+        total_num_hired = sum(e.event_type == "employed" for e in self.event_log)
+        total_num_left = sum(e.event_type == "left" for e in self.event_log)
+        total_num_promoted = sum(e.event_type == "promoted" for e in self.event_log)
+
+        # Determine org size over time
+        org_sizes_by_day = defaultdict(int)
+        for e in self.event_log:
+            if e.event_type == "employed":
+                org_sizes_by_day[e.date.date()] += 1
+            elif e.event_type == "left":
+                org_sizes_by_day[e.date.date()] -= 1
+        sorted_days = sorted(org_sizes_by_day.items())
+        running_total = 0
+        org_saturation_day = None
+        for day, delta in sorted_days:
+            running_total += delta
+            if running_total >= self.config.max_employees:
+                org_saturation_day = (day - self.start_date.date()).days
+                break
+
+        return {
+            "total_num_hired": total_num_hired,
+            "total_num_left": total_num_left,
+            "total_num_promoted": total_num_promoted,
+            "org_saturation_day": org_saturation_day if org_saturation_day is not None else -1,
+            "vp_team_size_skew": self._team_size_skew(self.active_employees, "VP"),
+            "director_team_size_skew":  self._team_size_skew(self.active_employees, "Director"),
+            "manager_team_size_skew":  self._team_size_skew(self.active_employees, "Manager"),
+            "mean_days_between_hires": self._mean_days_between("employed", self.event_log),
+            "mean_days_between_promotions": self._mean_days_between("promoted", self.event_log),
+            "mean_days_between_leavings": self._mean_days_between("left", self.event_log),
+        }

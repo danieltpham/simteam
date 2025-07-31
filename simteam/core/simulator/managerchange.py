@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from simteam.core.models.employee import Employee
-from simteam.core.enums import ALLOWED_MANAGER_MAPPING, Role
+from simteam.core.enums import Role
 
 
 class ManagerChangeLogic:
@@ -44,7 +44,7 @@ class ManagerChangeLogic:
         """
         Check if manager's role is a valid direct supervisor for the employee's role.
         """
-        allowed_roles = ALLOWED_MANAGER_MAPPING.get(emp_role, set())
+        allowed_roles = self.config.allowed_manager_mapping.get(emp_role, set())
         return mgr_role in allowed_roles
 
 
