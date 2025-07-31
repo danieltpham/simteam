@@ -5,10 +5,12 @@ target_cols = [
 ]
 
 automl_settings = {
-    "time_budget": 60,
+    "time_budget": 10,
     "task": "regression",
     "metric": "rmse",
     "estimator_list": ["xgboost"],
     "log_file_name": "flaml.log",
-    "verbose": 1,
+    "verbose": 2,
+    "early_stop": True,
+    "n_jobs": 4,  # Set to >1 if you want parallelism
 }

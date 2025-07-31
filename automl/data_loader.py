@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-from config import target_cols
+from automl.config import target_cols
 
 def load_simteam_data(path=None):
     # Resolve default path relative to this file
