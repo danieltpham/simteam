@@ -21,57 +21,84 @@ const OrgChartWrapper = (props: ComponentProps) => {
     const container = chartRef.current;
     if (!container) return;
 
+    // Inject Orbitron and Quantico fonts
+    const linkOrbitron = document.createElement("link");
+    linkOrbitron.href = "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap";
+    linkOrbitron.rel = "stylesheet";
+    document.head.appendChild(linkOrbitron);
+
+    const linkQuantico = document.createElement("link");
+    linkQuantico.href = "https://fonts.googleapis.com/css2?family=Quantico:wght@400;700&display=swap";
+    linkQuantico.rel = "stylesheet";
+    document.head.appendChild(linkQuantico);
+
     container.innerHTML = "";
     const width = container.getBoundingClientRect().width;
 
-    new OrgChart()
+    const chart = new OrgChart()
       .container(container)
       .data(data)
       .rootMargin(100)
-      .nodeWidth((d:any) => 210)
-      .nodeHeight((d:any) => 140)
-      .childrenMargin((d:any) => 130)
-      .compactMarginBetween((d:any) => 75)
-      .compactMarginPair((d:any) => 80)
+      .nodeWidth((d: any) => 330)
+      .nodeHeight((d: any) => 170)
+      .childrenMargin((d: any) => 90)
+      .compactMarginBetween((d: any) => 65)
+      .compactMarginPair((d: any) => 100)
+      .neightbourMargin(() => 50)
+      .siblingsMargin(() => 100)
       .compact(false)
+      .linkUpdate(function (this: SVGPathElement) {
+        this.setAttribute("stroke", "#00F0FF");
+        this.setAttribute("stroke-opacity", "0.8");
+        this.setAttribute("stroke-width", "2");
+      })
+      .buttonContent(({ node }: any) => {
+        return `<div style="color:#00F0FF;border-radius:5px;padding:3px;font-family:'Orbitron';font-size:10px;margin:auto auto;background-color:#0B0F1A;border: 1px solid #00F0FF"> 
+          <span style="font-family:'Orbitron'; font-size:9px">${node.children ? "▲" : "▼"}</span> ${node.data._directSubordinates} </div>`;
+      })
       .nodeContent((d: any) => {
-        const colors = [
-          "#6E6B6F",
-          "#18A8B6",
-          "#F45754",
-          "#96C62C",
-          "#BD7E16",
-          "#802F74",
-        ];
-        const color = colors[d.depth % colors.length];
+        const borderColor = "#00F0FF";
+        const bgColor = "#0B0F1A";
+        const nameColor = "#D8F3FF";
         const imageDim = 80;
-        const lightCircleDim = 95;
-        const outsideCircleDim = 110;
+        const glow = `0 0 10px ${borderColor}, 0 0 20px ${borderColor}`;
+        const svgCorner = `<svg width=150 height=75 style=\"opacity:0.8\"><path d=\"M 0,15 L15,0 L135,0 L150,15 L150,60 L135,75 L15,75 L0,60\" fill=\"${borderColor}\" stroke=\"${borderColor}\"/></svg>`;
+
+        const progressBars = Array.from({ length: 5 }, () =>
+          Math.floor(Math.random() * 25 + 5)
+        );
 
         return `
-          <div style="background-color:white; position:absolute;width:${d.width}px;height:${d.height}px;">
-            <div style="background-color:${color};position:absolute;margin-top:-${outsideCircleDim / 2}px;margin-left:${
-          d.width / 2 - outsideCircleDim / 2
-        }px;border-radius:100px;width:${outsideCircleDim}px;height:${outsideCircleDim}px;"></div>
-            <div style="background-color:#ffffff;position:absolute;margin-top:-${
-              lightCircleDim / 2
-            }px;margin-left:${
-          d.width / 2 - lightCircleDim / 2
-        }px;border-radius:100px;width:${lightCircleDim}px;height:${lightCircleDim}px;"></div>
-            <img src="${d.data.imageUrl}" style="position:absolute;margin-top:-${
-          imageDim / 2
-        }px;margin-left:${
-          d.width / 2 - imageDim / 2
-        }px;border-radius:100px;width:${imageDim}px;height:${imageDim}px;" />
-            <div class="card" style="top:${
-              outsideCircleDim / 2 + 10
-            }px;position:absolute;height:30px;width:${d.width}px;background-color:#3AB6E3;">
-              <div style="background-color:${color};height:28px;text-align:center;padding-top:10px;color:#ffffff;font-weight:bold;font-size:16px">
-                ${d.data.name}
-              </div>
-              <div style="background-color:#F0EDEF;height:28px;text-align:center;padding-top:10px;color:#424142;font-size:16px">
-                ${d.data.positionName}
-              </div>
+          <div class=\"left-top\" style=\"position:absolute;left:-10px;top:-10px\">${svgCorner}</div>
+          <div class=\"right-top\" style=\"position:absolute;right:-10px;top:-10px\">${svgCorner}</div>
+          <div class=\"right-bottom\" style=\"position:absolute;right:-10px;bottom:-14px\">${svgCorner}</div>
+          <div class=\"left-bottom\" style=\"position:absolute;left:-10px;bottom:-14px\">${svgCorner}</div>
+
+          <div style=\"font-family:'Quantico', sans-serif; background-color:${bgColor}; color:${nameColor}; position:absolute; width:${d.width}px; height:${d.height}px; border:2px solid ${borderColor}; border-radius:8px;\">
+            
+            <!-- Info Text -->
+            <div style=\"position:absolute; top:10px; right:20px; text-align:right; font-family:'Orbitron', sans-serif;\">
+              <div style=\"font-size:14px; color:${nameColor}; font-weight:bold;\">${d.data.name}</div>
+              <div style=\"font-size:12px;\">${d.data.positionName || ""}</div>
+              <div style=\"font-size:11px;\">${d.data.id || ""}</div>
+            </div>
+
+            <!-- Avatar -->
+            <div style=\"position:absolute; top:35px; left:${(d.width - imageDim) / 2}px;\">
+              <img src=\"${d.data.imageUrl}\" style=\"width:${imageDim}px; height:${imageDim}px; border-radius:50%; border:2px solid ${borderColor}; box-shadow:${glow};\" />
+            </div>
+
+            <!-- Simulated Pie / Progress Bars -->
+            <div style=\"position:absolute; top:${imageDim + 25}px; left:20px;\">
+              <div style=\"font-size:10px; margin-bottom:4px; color:${nameColor}; font-family:'Orbitron', sans-serif;\">Workload</div>
+              <svg width=\"130\" height=\"30\">
+                ${progressBars
+                  .map(
+                    (val, i) =>
+                      `<rect width=\"10\" x=\"${i * 20}\" height=\"${val}\" y=\"${30 - val}\" fill=\"#00F0FF\" rx=\"2\" />`
+                  )
+                  .join("")}
+              </svg>
             </div>
           </div>
         `;
@@ -92,5 +119,6 @@ const OrgChartWrapper = (props: ComponentProps) => {
     />
   );
 };
+
 
 export default withStreamlitConnection(OrgChartWrapper);
