@@ -34,42 +34,42 @@ class EventType(str, Enum):
 
 
 # Maximum quotas for each role
-ROLE_QUOTAS = {
-    Role.CEO: 1,
-    Role.VP: 3,
-    Role.DIRECTOR: 10,     # max 4 per VP
-    Role.MANAGER: 10,      # max 5 per Director
-    Role.SENIOR_ANALYST: 30,
-    Role.ANALYST: 50,
-}
+# ROLE_QUOTAS = {
+#     Role.CEO: 1,
+#     Role.VP: 3,
+#     Role.DIRECTOR: 10,     # max 4 per VP
+#     Role.MANAGER: 10,      # max 5 per Director
+#     Role.SENIOR_ANALYST: 30,
+#     Role.ANALYST: 50,
+# }
 
-# Maximum number of employees allowed in the simulation
-MAX_EMPLOYEES = 100
+# # Maximum number of employees allowed in the simulation
+# MAX_EMPLOYEES = 100
 
-# Max events of the same type per day
+# # Max events of the same type per day
 MAX_EVENTS_PER_TYPE = 3
 
-# Max events overall per day (after truncation)
-MAX_EVENTS_PER_DAY = 8
+# # Max events overall per day (after truncation)
+# MAX_EVENTS_PER_DAY = 8
 
-# Number of days a vacant role must be filled by
-VACANCY_FILL_DEADLINE_DAYS = 14
+# # Number of days a vacant role must be filled by
+# VACANCY_FILL_DEADLINE_DAYS = 14
 
-# Minimum number of employees before "leaving" is allowed
-MIN_EMPLOYEES_FOR_LEAVING = 30
+# # Minimum number of employees before "leaving" is allowed
+# MIN_EMPLOYEES_FOR_LEAVING = 30
 
-ALLOWED_MANAGER_MAPPING = {
-    Role.ANALYST: {Role.SENIOR_ANALYST, Role.MANAGER},
-    Role.SENIOR_ANALYST: {Role.MANAGER},
-    Role.MANAGER: {Role.DIRECTOR},
-    Role.DIRECTOR: {Role.VP},
-    Role.VP: {Role.CEO},
-}
+# ALLOWED_MANAGER_MAPPING = {
+#     Role.ANALYST: {Role.SENIOR_ANALYST, Role.MANAGER},
+#     Role.SENIOR_ANALYST: {Role.MANAGER},
+#     Role.MANAGER: {Role.DIRECTOR},
+#     Role.DIRECTOR: {Role.VP},
+#     Role.VP: {Role.CEO},
+# }
 
-PROMOTION_ORDER = {
-    Role.ANALYST: Role.SENIOR_ANALYST,
-    Role.SENIOR_ANALYST: Role.MANAGER,
-    Role.MANAGER: Role.DIRECTOR,
-    Role.DIRECTOR: Role.VP,
-    Role.VP: Role.CEO,
-}
+# PROMOTION_ORDER = {
+#     Role.ANALYST: Role.SENIOR_ANALYST,
+#     Role.SENIOR_ANALYST: Role.MANAGER,
+#     Role.MANAGER: Role.DIRECTOR,
+#     Role.DIRECTOR: Role.VP,
+#     Role.VP: Role.CEO,
+# }

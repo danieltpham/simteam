@@ -2,7 +2,7 @@ from datetime import datetime
 import random
 from typing import Optional
 
-from simteam.core.enums import Role, ROLE_QUOTAS, MAX_EMPLOYEES
+from simteam.core.enums import Role
 from simteam.core.utils import generate_emp_id
 from simteam.core.models.employee import Employee
 from simteam.core.models.base import EventLog
@@ -34,7 +34,7 @@ class HiringLogic:
         """
         
         # Must not exceed total
-        if len(self.active_employees) >= MAX_EMPLOYEES:
+        if len(self.active_employees) >= self.config.max_employees:
             return None
 
         # Must not exceed role quota
@@ -42,7 +42,7 @@ class HiringLogic:
             1 for e in self.active_employees
             if e.state.active and e.state.role == role
         )
-        if current_count >= ROLE_QUOTAS[role]:
+        if current_count >= self.config.role_quotas[role]:
             return None
 
 
@@ -92,7 +92,7 @@ class HiringLogic:
                     and e.state.role == subordinate_role
                     and e.state.manager_id == emp_id
                 )
-                quota = ROLE_QUOTAS[subordinate_role]
+                quota = self.config.role_quotas[subordinate_role]
                 n_vacancies = max(0, quota - current)
                 
                 for _ in range(n_vacancies):

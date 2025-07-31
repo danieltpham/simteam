@@ -5,7 +5,6 @@ from typing import List
 from simteam.core.enums import Role
 from simteam.core.models.vacancy import Vacancy
 from simteam.core.utils import advance_date
-from simteam.core.enums import VACANCY_FILL_DEADLINE_DAYS
 
 # Moved to top-level constant for reuse and testability
 PROMOTE_HIRE_WEIGHTS = {
@@ -37,7 +36,7 @@ class VacancyLogic:
         """
         Create a new vacancy and add it to the queue.
         """
-        deadline = advance_date(date, VACANCY_FILL_DEADLINE_DAYS)
+        deadline = advance_date(date, self.config.vacancy_fill_deadline_days)
         vacancy = Vacancy.create(
             role=role,
             manager_id=manager_id,
@@ -132,8 +131,7 @@ class VacancyLogic:
         """
         Get the typical role that promotes into this target role.
         """
-        from simteam.core.simulator.promotion import PROMOTION_ORDER
-        for from_role, to in PROMOTION_ORDER.items():
+        for from_role, to in self.config.promotion_order.items():
             if to == to_role:
                 return from_role
         return to_role  # fallback

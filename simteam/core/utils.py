@@ -4,7 +4,7 @@ from typing import List
 from datetime import datetime, timedelta
 from scipy.stats import poisson
 
-from simteam.core.enums import MAX_EVENTS_PER_DAY, MAX_EVENTS_PER_TYPE
+from simteam.core.enums import MAX_EVENTS_PER_TYPE
 
 
 def generate_emp_id(counter: int) -> str:
@@ -20,14 +20,14 @@ def generate_emp_id(counter: int) -> str:
     return f"E{counter:04d}"
 
 
-def poisson_event_count(mu: float = 1.5, max_events: int = MAX_EVENTS_PER_DAY) -> int:
+def poisson_event_count(max_events: int, mu: float = 1.5) -> int:
     """
     Sample the number of events for the day using a Poisson distribution.
 
     Args:
-        mu (float): The lambda parameter (mean rate of events).
         max_events (int): Maximum allowed events.
-
+        mu (float): The lambda parameter (mean rate of events).
+        
     Returns:
         int: Truncated number of events for the day.
     """

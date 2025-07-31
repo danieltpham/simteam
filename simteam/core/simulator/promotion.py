@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 import random
 
-from simteam.core.enums import PROMOTION_ORDER, ROLE_QUOTAS, Role, ALLOWED_MANAGER_MAPPING
+from simteam.core.enums import Role
 from simteam.core.models.employee import Employee
 from simteam.core.utils import weighted_sample
 
@@ -44,7 +44,7 @@ class PromotionLogic:
         Returns:
             Optional[str]: Promoted employee ID, or None if not promoted.
         """
-        to_role = PROMOTION_ORDER.get(from_role)
+        to_role = self.config.promotion_order.get(from_role)
         if not to_role:
             return None
 
@@ -53,7 +53,7 @@ class PromotionLogic:
             1 for e in self.employees.values()
             if e.state.active and e.state.role == to_role
         )
-        if current_count >= ROLE_QUOTAS[to_role]:
+        if current_count >= self.config.role_quotas[to_role]:
             return None
 
         # === 2. Find candidates
@@ -82,7 +82,7 @@ class PromotionLogic:
         Find a valid, active manager one level above `role`.
         TEMP allowed if no real manager available.
         """
-        allowed_roles = ALLOWED_MANAGER_MAPPING.get(role, set())
+        allowed_roles = self.config.allowed_manager_mapping.get(role, set())
 
         for e in self.employees.values():
             if (

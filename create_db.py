@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import datetime
 
 from sqlalchemy.exc import OperationalError
-from simteam.server.db.session import Base, engine, SessionLocal
+from simteam.server.db.session import Base, engine, Session
 from simteam.server.db import models
 from simteam.core.enums import Role, EventType
 
@@ -55,7 +55,7 @@ def insert_data(db_session, data: dict):
 
 if __name__ == "__main__":
     reset_database()
-    session = SessionLocal()
+    session = Session()
     json_data = load_json(Path("sim_output.json"))
     insert_data(session, json_data)
     session.close()
