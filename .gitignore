@@ -8,7 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+# build/
 develop-eggs/
 dist/
 downloads/
@@ -208,3 +208,8 @@ __marimo__/
 
 # Database
 *.db
+
+# React
+node_modules/
+**/node_modules/*
+**/test.ipynb

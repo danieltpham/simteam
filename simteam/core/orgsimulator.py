@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import random
 
+from simteam.core.config import SimulationConfig, get_default_config
 from simteam.core.enums import Role
 from simteam.core.simulator.base import BaseOrgSimulator
 from simteam.core.simulator.dailyeventengine import DailyEventEngine
@@ -29,8 +30,8 @@ class OrgSimulator(
     - Vacancy backfilling with deadlines
     """
 
-    def __init__(self, start_date: datetime):
-        BaseOrgSimulator.__init__(self, start_date)
+    def __init__(self, start_date: datetime, config: SimulationConfig = get_default_config()):
+        BaseOrgSimulator.__init__(self, start_date, config)
         DailyEventEngine.__init__(self)
         self.init_org(start_date)
         

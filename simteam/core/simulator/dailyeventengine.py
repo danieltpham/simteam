@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
 import random
-from simteam.core.enums import MAX_EVENTS_PER_DAY, MIN_EMPLOYEES_FOR_LEAVING, EventType
+from simteam.core.enums import EventType
 from simteam.core.utils import poisson_event_count
 
 
@@ -14,22 +14,6 @@ class DailyEventEngine:
     - Choose which types (EMPLOYED, PROMOTED, LEFT, etc.)
     - Enforce daily and weekly constraints
     """
-
-    EVENT_TYPE_WEIGHTS = {
-        EventType.EMPLOYED: 4,
-        EventType.PROMOTED: 2,
-        EventType.LEFT: 1,
-        EventType.CHANGE: 1,
-    }
-
-    EVENT_TYPE_CAPS = {
-        EventType.EMPLOYED: 3,
-        EventType.PROMOTED: 3,
-        EventType.LEFT: 2,
-        EventType.CHANGE: 2,
-    }
-
-    MIN_EVENTS_PER_WEEK = 1
 
     def __init__(self):
         self.week_counter = 0
@@ -54,10 +38,10 @@ class DailyEventEngine:
 
         events_today = defaultdict(int)
         
-        max_daily_events = poisson_event_count()
+        max_daily_events = poisson_event_count(max_events=self.config.max_events_per_day)
 
         # === 1. Fill vacancies first (count as events)
-        if self.emp_counter <= MIN_EMPLOYEES_FOR_LEAVING:
+        if self.emp_counter <= self.config.min_employees_for_leaving:
             max_fill = int(max_daily_events)
         else:
             max_fill = int(max_daily_events/2)
@@ -86,8 +70,8 @@ class DailyEventEngine:
         valid_types = []
         weights = []
 
-        for etype, weight in self.EVENT_TYPE_WEIGHTS.items():
-            if current_day_counts[etype] < self.EVENT_TYPE_CAPS[etype]:
+        for etype, weight in self.config.event_type_weights.items():
+            if current_day_counts[etype] < self.config.event_type_caps[etype]:
                 valid_types.append(etype)
                 weights.append(weight)
 

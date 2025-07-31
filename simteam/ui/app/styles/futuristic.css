@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Quantico:wght@400;700&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Quantico';
+    color: #D8F3FF;
+    background-color: #0B0F1A;
+}
+
+.stApp {
+    background-color: #0B0F1A;
+}
+
+h1, h2, h3 {
+    color: #00F0FF;
+    text-shadow: 0 0 8px #00F0FF;
+}
+
+.css-1d391kg {  /* Sidebar background */
+    background-color: #141C2B;
+}
+
+.block-container {
+    padding-top: 1rem !important;
+    padding-right: 3rem !important;
+    padding-left: 3rem !important;
+    padding-bottom: 1rem !important;
+}
+
+/* Sidebar Event Console Styling */
+.stMarkdown p {
+    font-size: 0.8rem !important;  /* ~2px smaller than default */
+}
