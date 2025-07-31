@@ -1,3 +1,4 @@
+import asyncio
 import pandas as pd
 import streamlit as st
 from datetime import datetime, timedelta
@@ -9,6 +10,7 @@ from typing import Iterator
 from app.data_loader import load_event_log, load_temps
 from app.org_builder import build_org_structure
 from components.streamlit_register import render_org_chart
+from pydanticai.async_call import get_sql_response
 
 # --- Load custom CSS ---
 def load_css(relative_path):
@@ -130,7 +132,37 @@ with tab1:
 
 with tab2:
     st.subheader("🤖 AI Assistant")
-    st.info("AI interface placeholder – coming soon!")
+    st.markdown("Ask questions about the employee database using natural language.")
+
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    for msg in st.session_state.chat_history:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    if prompt := st.chat_input("Ask me something about your org..."):
+        st.chat_message("user").markdown(prompt)
+        st.session_state.chat_history.append({"role": "user", "content": prompt})
+
+        with st.spinner("Thinking..."):
+            output = asyncio.run(get_sql_response(prompt))
+            try:
+                output = asyncio.run(get_sql_response(prompt))
+                answer = output.result.encode("utf-8", errors="replace").decode("utf-8")
+                sql_code = output.sql
+            except Exception as e:
+                answer = f"❌ Error: {e}"
+                sql_code = ""
+
+        with st.chat_message("assistant"):
+            st.markdown(answer)
+            if sql_code:
+                with st.expander("🧠 Show generated SQL"):
+                    st.code(sql_code, language="sql")
+
+        st.session_state.chat_history.append({"role": "assistant", "content": answer})
+
 
 with tab3:
     st.subheader("⌨️ Meta Model")

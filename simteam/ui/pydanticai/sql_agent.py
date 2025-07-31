@@ -16,7 +16,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def load_prompt_from_file() -> str:
     current_dir = os.path.dirname(os.path.abspath(__file__))
     prompt_path = os.path.join(current_dir, "prompt.txt")
-    with open(prompt_path, "r") as f:
+    with open(prompt_path, encoding="utf-8") as f:
         return f.read()
 
 prompt_text = load_prompt_from_file()
