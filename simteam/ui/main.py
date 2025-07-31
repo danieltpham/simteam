@@ -28,7 +28,7 @@ if "ready_to_stream" not in st.session_state:
 
 # --- Sidebar ---
 with st.sidebar:
-    st.title("📅 Filter")
+    st.title("📅 DATE")
 
     # Load data
     with st.spinner("Fetching event log..."):
@@ -61,7 +61,7 @@ with st.sidebar:
 
     # Date input (sync with session state)
     selected_date = st.date_input(
-        "Snapshot date",
+        "",
         value=st.session_state.selected_date,
         min_value=min_date,
         max_value=max_date,
@@ -111,7 +111,7 @@ st.title("S.I.M.T.E.A.M")
 # Build org data
 actives, temps = build_org_structure(df, temp_list=temp_list, date=selected_date.isoformat())
 
-tab1, tab2, tab3 = st.tabs(["ORG CHART", "DB TERMINAL", "AI CHATBOT"])
+tab1, tab2, tab3 = st.tabs(["ORG CHART", "AI CHATBOT", "META MODEL"])
 
 with tab1:
     st.subheader(f"Organisation as of {selected_date.isoformat()}")
@@ -119,12 +119,12 @@ with tab1:
     render_org_chart(actives + temps, key="org_chart", height=400)
 
 with tab2:
-    st.subheader("⌨️ DB Terminal")
-    st.info("Terminal placeholder – coming soon!")
-
-with tab3:
     st.subheader("🤖 AI Assistant")
     st.info("AI interface placeholder – coming soon!")
+
+with tab3:
+    st.subheader("⌨️ Meta Model")
+    st.info("ML model placeholder – coming soon!")
 
 # --- Post-render delayed re-run to start console stream ---
 if not st.session_state.ready_to_stream:
