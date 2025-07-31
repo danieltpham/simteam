@@ -12,7 +12,7 @@ pydantic
 python-dotenv
 
 # # Visualisation
-# plotly>=5.18.0
+plotly>=5.18.0
 # networkx>=3.2.0
 # matplotlib>=3.7.0
 
