@@ -1,6 +1,6 @@
 # simteam/server/api/v1/model.py
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Dict
@@ -52,8 +52,8 @@ _surrogate = SurrogateTrainer()
 _surrogate.load()
 
 
-@router.post("/", response_model=ModelResponse)
-def run_simulation_and_predict(input: SimulationInput):
+@router.api_route("/", methods=["GET", "POST"], response_model=ModelResponse)
+def run_simulation_and_predict(input: SimulationInput = Depends()):
     """
     Run the rule-based simulator and predict summary outcomes using the surrogate model.
 
