@@ -5,7 +5,7 @@ from simteam.server.db.session import get_db
 from simteam.server.db.models import EmployeeORM
 from simteam.core.models.base import EmployeeState
 
-router = APIRouter(prefix="/employees", tags=["Employees"])
+router = APIRouter(prefix="/employees", tags=["EMPLOYEES"])
 
 @router.get("/", response_model=list[EmployeeState])
 def list_employees(db: Session = Depends(get_db)):

@@ -23,7 +23,7 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="S.I.M.T.E.A.M API",
+        title="SimTeam API",
         version="1.0.0",  # required!
         description="FastAPI Documentations for SIMTEAM. Currently read-only.",
         routes=app.routes,
