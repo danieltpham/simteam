@@ -7,119 +7,117 @@ https://simteam.danielpham.com.au/
 > **"Simulate. Predict. Explain. Optimise."**
 > A full-stack analytics & AI platform for organisational design, built with commercial-grade technologies and shaped by real enterprise experience.
 
----
+## Includes
 
-## 📌 Project Summary
-
-**SimTeam** is a full-stack, end-to-end platform for:
-
-* Simulating organisational dynamics: hiring, promotions, attrition
-* Generating predictive insights through surrogate models
-* Enabling natural language analytics using LLM-style SQL agents
-* Visualising evolving org structures through interactive charts
-
-It blends modern software engineering, machine learning, simulation logic, and cloud-native deployment—offering a complete demonstration of **full-stack data science and engineering**.
+* A **simulation engine** for modelling hiring, promotion, attrition, and succession
+* A **live PostgreSQL backend** accessed through a typed API layer
+* A **stateless natural language assistant** that converts plain English into secure SQL queries
+* A **machine learning meta-model** to approximate simulation outcomes using AutoML
+* An **interactive frontend** combining Streamlit with a custom React org chart
 
 ---
 
-## 🔧 Features
+## System Overview
 
-### 🏢 Organisational Simulator
+| Component             | Description                                                                |
+| --------------------- | -------------------------------------------------------------------------- |
+| **Simulation Engine** | Modular OOP logic to simulate daily events affecting workforce structure   |
+| **API Layer**         | FastAPI app with versioned, schema-validated endpoints (`/api/v1/...`)     |
+| **Database**          | PostgreSQL with SQLAlchemy ORM and typed model access                      |
+| **LLM Assistant**     | PydanticAI agent that executes validated SQL queries from natural language |
+| **Meta Model**        | Surrogate model trained via FLAML to predict simulation outcomes           |
+| **Frontend**          | Streamlit + React (d3-org-chart) for dynamic organisational visualisation  |
+| **Deployment**        | Dockerised stack deployed to GCP Cloud Run with NGINX reverse proxy        |
 
-* Agent-based simulator using modular, object-oriented Pydantic models
-* Role-based life cycle: `HIRE`, `PROMOTE`, `LEFT`, `REORG`
-* Logic split across Hiring, Promotion, Vacancy, Manager Reassignment modules
-* Simulates daily organisational state transitions
+### Tech Stack
 
-### 📊 Streamlit Interface + Custom Org Chart
-
-* Streamlit dashboard with:
-
-  * Time series views
-  * Daily snapshot filtering
-  * Console-style logs
-* Custom **React-based org chart** using `d3-org-chart`:
-
-  * Neon-aerospace theme
-  * Metadata-rich nodes: salary, position, reports, contact
-
-### 🤖 Surrogate Modelling with AutoML
-
-* Batch simulations exported to train predictive models
-* FLAML AutoML used to estimate final outcomes (e.g. team size, churn)
-* Fast scenario prototyping and counterfactual exploration without re-simulation
-
-### 💬 PydanticAI SQL Agent (LLM-style interface)
-
-* Secure, schema-aware natural language queries
-* Connects to live Postgres via SQLAlchemy ORM
-* Business logic prompt engineering (e.g. “current employee” defined via last event)
-* Powered by PydanticAI (drop-in LangChain alternative)
-
-### 🌐 FastAPI Backend
-
-* Modular API exposing:
-
-  * `/simulate` → Run simulation with parameters
-  * `/model/predict` → Use trained surrogate model
-  * `/event-log` and `/employees` → View current and past org state
-* All endpoints are typed with Pydantic and backed by ORM
+![FastAPI](https://img.shields.io/badge/FastAPI-05998B?style=for-the-badge\&logo=fastapi\&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge\&logo=postgresql\&logoColor=white)
+![PydanticAI](https://img.shields.io/badge/Pydantic-9442FF?style=for-the-badge&logo=pydantic)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge\&logo=streamlit\&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge\&logo=react)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge\&logo=docker&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/GCP-4285F4?style=for-the-badge\&logo=google-cloud\&logoColor=white)
 
 ---
 
-## 🧱 Tech Stack
+## Key Interface Features
 
-| Layer               | Technologies Used                                                      |
-| ------------------- | ---------------------------------------------------------------------- |
-| **Frontend**        | Streamlit, Custom React Component (`d3-org-chart`)                     |
-| **Backend**         | FastAPI, Pydantic, SQLAlchemy ORM, PostgreSQL                          |
-| **Simulation**      | OOP with Pydantic under `simteam/core`, modular simulation logic       |
-| **AutoML**          | FLAML (Fast Lightweight AutoML)                                        |
-| **LLM Integration** | PydanticAI + custom prompt templates                                   |
-| **Deployment**      | Docker, NGINX, hosted on **Google Cloud Platform (GCP)** via Cloud Run |
+### Organisation Chart
+
+Displays a point-in-time hierarchy built from a transactional event log. Supports drilldowns and metadata display using a custom React wrapper around `d3-org-chart`.
+
+### AI Assistant
+
+Natural language interface backed by PydanticAI. Key properties:
+
+* Stateless: no memory or chaining
+* Read-only: rejects `INSERT`, `UPDATE`, `DELETE`
+* Transparent: shows generated SQL for inspection
+* Integrated with the live PostgreSQL instance
+
+### Meta Model
+
+Trains surrogate models from simulation logs to predict:
+
+* Total employees at horizon
+* Promotion or churn counts
+* Impact of parameter changes on structure
+
+Powered by FLAML for lightweight hyperparameter tuning.
+
+### Time Series and Logs
+
+* Daily event log with console-like view
+* Employee count time series with simulation trace
+* Sidebar-driven filtering and playback
 
 ---
 
-## 🧩 Project Structure
+## Simulation Logic
+
+The simulation is modular and rule-based. Logic modules include:
+
+* `HiringLogic`: Validates manager availability and department context
+* `PromotionLogic`: Uses weighted sampling and eligibility checks
+* `ManagerChangeLogic`: Prevents circular reporting and ensures role hierarchy
+* `VacancyLogic`: Auto-generates TEMP nodes for unmet quotas
+
+Simulation adheres to a 6-tier hierarchy:
+
+`CEO → VP → Director → Manager → Senior Analyst → Analyst`
+
+All logic is housed in [`simteam/core`](simteam/core), with Pydantic-based data models for simulation state and events.
+
+---
+
+## Architecture
 
 ```
 simteam/
-├── core/                  # Simulation logic (Pydantic + OOP modules)
-│   ├── models/            # EmployeeState, EventLog, Organisation logic
-│   └── simulator/         # Modular rule logic: hire, promote, etc.
-│
-├── server/                # FastAPI app and routers
-│   └── db/                # SQLAlchemy engine, session, base models
-│
-├── ui/
-│   ├── main.py            # Streamlit interface
-│   ├── pydanticai/        # SQL agent logic with prompt templates
-│   └── components/        # Custom React org chart
-│       └── org_chart_component/
-│           └── streamlit_register.py
-│
-├── automl/                # FLAML surrogate model training/inference
-├── training_data/         # Data exports from simulations
-├── Dockerfile             # Containerized setup
-└── .env                   # GCP/DB configuration
+├── core/                  # Simulation engine: OOP logic + data models
+├── server/                # FastAPI routers and database interface
+├── ui/                    # Streamlit frontend + PydanticAI integration
+│   └── components/
+│       └── org_chart_component/   # React component
+├── automl/                # Surrogate model training and inference
+├── training_data/         # Cached simulation outputs
+├── nginx/                 # Reverse proxy config
+└── Dockerfile             # Container setup for GCP/Cloud Run
 ```
 
 ---
 
-## 🌍 Deployment (GCP Cloud Run + Docker)
-
-Each service (Streamlit, API) is deployable independently using Docker, GCP Cloud Run, and optional Cloudflare Load Balancer. `nginx.conf` is dynamically generated using `envsubst`.
-
-### 🚀 Local Setup
+## Running Locally
 
 ```bash
-# FastAPI backend
+# Backend API
 uvicorn simteam.server.main:app --reload
 
-# Streamlit frontend
+# Frontend
 streamlit run simteam/ui/main.py
 
-# React org chart component
+# Org chart component
 cd simteam/ui/components/org_chart_component
 npm install
 npm run build
@@ -127,40 +125,36 @@ npm run build
 
 ---
 
-## 💡 Why This Demonstrates Full-Stack Data Science & Engineering
+## Deployment
 
-| Layer                   | Description                                                  |
-| ----------------------- | ------------------------------------------------------------ |
-| **Data Engineering**    | PostgreSQL, SQLAlchemy ORM, secure live DB access            |
-| **Simulation Science**  | Daily lifecycle simulation with rules-based agent modelling  |
-| **Machine Learning**    | Surrogate modelling pipeline using FLAML                     |
-| **AI/LLM Integration**  | Prompt-tuned SQL agent with live Pydantic schema binding     |
-| **Web App Development** | Streamlit dashboard + React component embedding              |
-| **API Design**          | FastAPI endpoints with typed I/O and extensible architecture |
-| **DevOps & Hosting**    | Docker + GCP Cloud Run + NGINX reverse proxy                 |
+* Dockerised application for local or cloud use
+* Designed for GCP Cloud Run + Cloudflare Load Balancer
+* NGINX reverse proxy with env-based dynamic configuration
 
 ---
 
-## ✅ Use Cases
+## Usage Guidelines
 
-* Forecast team growth under different attrition/promotion strategies
-* Predict organisational KPIs without running full simulations
-* Explore historical promotion or attrition patterns with natural language
-* Visualise team structure and succession chains interactively
-
----
-
-## 🔒 Security & Guardrails
-
-* Read-only DB access for agents
-* SQL injection resistant via ORM
-* Prompt templates use enforced business logic (e.g. filtering for current employees)
-* Clear separation between data access, model, and UI layers
+* Use the sidebar to explore historical org snapshots by date
+* Ask natural language questions (e.g. “Who was promoted last week?”)
+* Simulate future scenarios and compare with surrogate predictions
+* Use SQL inspector to verify query safety and transparency
 
 ---
 
-## 🙋 Author
+## Planned Enhancements
 
-**Daniel Pham**
-PhD (Data Science) | CSL Ltd
-Full-Stack Data Scientist & Simulation Optimiser
+* Time-lapse animation of org structure
+* Scenario comparison and optimisation dashboard
+* Export features (PDF/CSV)
+* Role-based user views (admin vs analyst)
+* Query intent classification for routing
+* Team-level KPIs and dashboards
+
+---
+
+## More from me
+
+http://danielpham.com.au/
+
+http://github.com/danieltpham/
