@@ -54,7 +54,7 @@ app.include_router(simulate.router, prefix="/v1")
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
     html = get_swagger_ui_html(
-        openapi_url=app.openapi_url,  # type: ignore
+        openapi_url="/api/openapi.json",
         title="SimTeam API - Swagger UI",
         swagger_js_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js",
         swagger_css_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css",
