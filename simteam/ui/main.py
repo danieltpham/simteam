@@ -33,7 +33,13 @@ def show_help(input_file: str):
     st.markdown(load_help_text(input_file))
 
 
-st.set_page_config(page_title="SimTeam Org Chart", layout="wide")
+# --- Page config ---
+st.set_page_config(
+    page_title="SimTeam | By Daniel Pham",
+    page_icon="docs/simteam-logo.png",
+    layout="wide"
+)
+
 load_css("app/styles/futuristic.css")
 
 # --- Session State Initialization ---
