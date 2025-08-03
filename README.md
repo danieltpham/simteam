@@ -1,130 +1,146 @@
-# 🧩 Simulation Engine Requirements
-
-## 📘 Overview
-
-The simulation models the evolution of a company’s workforce over time, capturing daily events such as hiring, promotions, role changes, and departures. It maintains a hierarchical organisational structure and enforces role-specific rules, quotas, and succession dynamics.
-
----
-
-## 📅 Simulation Timeframe
-
-* **Start Date**: 2025-01-01
-* **Duration**: User-specified (e.g. 365 days)
-* **Granularity**: Daily
+<div align="center">
+  <a href="https://simteam.danielpham.com.au/">
+    <img src="docs/hero.png" alt="Pydantic AI">
+  </a>
+</div>
+<div align="center">
+  <em>Simulate. Predict. Explain. Optimise.</em>
+</div>
 
 ---
 
-## 👤 Roles and Hierarchy
+A full-stack analytics & AI platform for organisational design, built with commercial-grade technologies and shaped by real enterprise experience. 
 
-| Role           | Level | Reports To    | Has Dept | Has Team | Quota Limit |
-| -------------- | ----- | ------------- | -------- | -------- | ----------- |
-| CEO            | 0     | —             | ❌        | ❌        | 1           |
-| VP             | 1     | CEO           | ❌        | ❌        | 3           |
-| Director       | 2     | VP            | ✅        | ❌        | ≤5/VP       |
-| Manager        | 3     | Director      | ✅        | ✅        | ≤5/Director |
-| Senior Analyst | 4     | Manager or SA | ✅        | ✅        | Unlimited   |
-| Analyst        | 5     | Manager or SA | ✅        | ✅        | Unlimited   |
+_A personal project by © 2025 Daniel Pham._
 
 ---
 
-## 📈 Simulation Logic
+## Includes
 
-### 1. **Event Types**
+* A **simulation engine** for modelling hiring, promotion, attrition, and succession
+* A **live PostgreSQL backend** accessed through a typed API layer
+* A **stateless natural language assistant** that converts plain English into secure SQL queries
+* A **machine learning meta-model** to approximate simulation outcomes using AutoML
+* An **interactive frontend** combining Streamlit with a custom React org chart
 
-* `employed`: new hire
-* `promoted`: internal promotion to higher role
-* `change`: change of manager (same role)
-* `left`: employee leaves the company
+## System Overview
 
-### 2. **Daily Event Count**
+![FastAPI](https://img.shields.io/badge/FastAPI-05998B?style=for-the-badge\&logo=fastapi\&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge\&logo=postgresql\&logoColor=white)
+![PydanticAI](https://img.shields.io/badge/Pydantic-9442FF?style=for-the-badge&logo=pydantic)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge\&logo=streamlit\&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge\&logo=react)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge\&logo=docker&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/GCP-4285F4?style=for-the-badge\&logo=google-cloud\&logoColor=white)
 
-* Number of events per day is sampled from a **Poisson(λ = 1.5)** distribution, capped at 8.
-* No more than 3 events of the same type per day.
+| Component             | Description                                                                |
+| --------------------- | -------------------------------------------------------------------------- |
+| **Simulation Engine** | Modular OOP logic to simulate daily events affecting workforce structure   |
+| **API Layer**         | FastAPI app with versioned, schema-validated endpoints (`/api/v1/...`)     |
+| **Database**          | PostgreSQL with SQLAlchemy ORM and typed model access                      |
+| **LLM Assistant**     | PydanticAI agent that executes validated SQL queries from natural language |
+| **Meta Model**        | Surrogate model trained via FLAML to predict simulation outcomes           |
+| **Frontend**          | Streamlit + React (d3-org-chart) for dynamic organisational visualisation  |
+| **Deployment**        | Dockerised stack deployed to GCP Cloud Run with NGINX reverse proxy        |
 
-### 3. **Event Distribution**
+## Streamlit Features
 
-| Event Type | Trigger Rules                                                                 |
-| ---------- | ----------------------------------------------------------------------------- |
-| `employed` | Triggered if total headcount < 100. Probability ∝ (100 - current count) / 100 |
-| `left`     | Cannot occur until ≥30 employees exist                                        |
-| `promoted` | Randomly chosen from eligible employees with roles from VP down to Analyst    |
-| `change`   | Randomly assigned to change direct manager                                    |
+### Organisation Chart
+
+Displays a point-in-time hierarchy built from a transactional event log. Supports drilldowns and metadata display using a custom React wrapper around `d3-org-chart`.
+
+### AI Assistant
+
+Natural language interface backed by PydanticAI. Key properties:
+
+* Stateless: no memory or chaining
+* Read-only: rejects `INSERT`, `UPDATE`, `DELETE`
+* Transparent: shows generated SQL for inspection
+* Integrated with the live PostgreSQL instance
+
+### Meta Model
+
+Trains surrogate models from simulation logs to predict:
+
+* Total employees at horizon
+* Promotion or churn counts
+* Impact of parameter changes on structure
+
+Powered by FLAML for lightweight hyperparameter tuning.
+
+### Time Series and Logs
+
+* Daily event log with console-like view
+* Employee count time series with simulation trace
+* Sidebar-driven filtering and playback
+
+## Data Simulation Logic
+
+The simulation is modular and rule-based. Logic modules include:
+
+* `HiringLogic`: Validates manager availability and department context
+* `PromotionLogic`: Uses weighted sampling and eligibility checks
+* `ManagerChangeLogic`: Prevents circular reporting and ensures role hierarchy
+* `VacancyLogic`: Auto-generates TEMP nodes for unmet quotas
+
+Simulation adheres to a 6-tier hierarchy:
+
+`CEO → VP → Director → Manager → Senior Analyst → Analyst`
+
+All logic is housed in [`simteam/core`](simteam/core), with Pydantic-based data models for simulation state and events.
+
+
+## Project Structure
+
+```
+simteam/
+├── core/                  # Simulation engine: OOP logic + data models
+├── server/                # FastAPI routers and database interface
+├── ui/                    # Streamlit frontend + PydanticAI integration
+│   └── components/
+│       └── org_chart_component/   # React component
+├── automl/                # Surrogate model training and inference
+├── training_data/         # Cached simulation outputs
+├── nginx/                 # Reverse proxy config
+└── Dockerfile             # Container setup for GCP/Cloud Run
+```
+
+## Running Locally
+
+```bash
+# Backend API
+uvicorn simteam.server.main:app --reload
+
+# Frontend
+streamlit run simteam/ui/main.py
+```
+
+## Deployment
+
+* Dockerised application for local or cloud use
+* Designed for GCP Cloud Run + Cloudflare Load Balancer
+* NGINX reverse proxy with env-based dynamic configuration
+
+## Usage Guidelines
+
+* Use the sidebar to explore historical org snapshots by date
+* Ask natural language questions (e.g. “Who was promoted last week?”)
+* Simulate future scenarios and compare with surrogate predictions
+* Use SQL inspector to verify query safety and transparency
+
+## Planned Enhancements
+
+* Time-lapse animation of org structure
+* Scenario comparison and optimisation dashboard
+* Export features (PDF/CSV)
+* Role-based user views (admin vs analyst)
+* Query intent classification for routing
+* Team-level KPIs and dashboards
 
 ---
 
-## 🧮 Hiring Rules
+## More from me
 
-### Hiring Prioritisation
+http://danielpham.com.au/
 
-* Prioritise **lower-level roles** when multiple roles are under quota.
-* Vacancy fill priority: Analyst > SA > Manager > Director > VP > CEO
-
-### Vacancy Fill Strategies
-
-| Role           | Fill Logic                           |
-| -------------- | ------------------------------------ |
-| CEO, VP        | Likely external hire                 |
-| Director       | Prefer promotion from Manager        |
-| Manager        | 50/50 promotion from SA vs new hire  |
-| Senior Analyst | 50/50 promotion from Analyst vs hire |
-| Analyst        | Always hire externally               |
-
----
-
-## ⏳ Vacancy Rules
-
-* If a role with direct reports becomes vacant:
-
-  * It must be filled **within 14 days**
-  * If not filled by promotion, fallback to hire
-* Reporting employees are reassigned to the new manager
-
----
-
-## 🔄 Weekly Guarantees
-
-* At least **1 event per week** (forced if no events by Sunday)
-
----
-
-## 🧠 Probabilistic Logic Summary
-
-* Daily event count: `Poisson(λ=1.5)`, truncated at 8
-* Event type draw: max 3 per type per day
-* Hiring probability scales with unfilled quota
-* Vacancy resolution prioritised based on promotion likelihood
-
----
-
-## 🗃️ Employee State Tracking
-
-Each employee maintains:
-
-* `emp_id`
-* `role`
-* `manager_id`
-* `department`, `team` (optional by role)
-* `hire_date`
-* `active` flag
-* `history`: list of all events with timestamps
-
----
-
-## 📤 Output & Export
-
-* Full event log table:
-
-  * `employee_id`, `event_type`, `date`, `role`, `manager_id`, `department`, `team`
-* Snapshots:
-
-  * State of org chart on any given day
-  * Summary metrics (headcount, composition by role, etc.)
-
----
-
-## 🧪 Design Goals
-
-* 🧠 Realistic simulation of role succession and structural evolution
-* 🕹️ Interactive and explainable: supports logs, visual diff, user inspection
-* 🧱 Modular, extensible, fully OOP
-* 🚀 Efficient for up to 100 employees and 1 year of daily steps
+http://github.com/danieltpham/

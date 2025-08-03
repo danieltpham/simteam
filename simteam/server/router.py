@@ -25,7 +25,7 @@ def custom_openapi():
     openapi_schema = get_openapi(
         title="SimTeam API",
         version="1.0.0",  # required!
-        description="SimTeam service documentation",
+        description="FastAPI Documentations for SIMTEAM. Currently read-only.",
         routes=app.routes,
     )
     app.openapi_schema = openapi_schema
