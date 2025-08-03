@@ -29,7 +29,7 @@ class ModelResponse(BaseModel):
     actual_sim: ActualSim
     predicted_stats: Dict[str, float]
 
-router = APIRouter(prefix="/simulate", tags=["Simulation"])
+router = APIRouter(prefix="/simulate", tags=["SIMULATION"])
 
 class SimulationInput(BaseModel):
     """
@@ -52,7 +52,7 @@ _surrogate = SurrogateTrainer()
 _surrogate.load()
 
 
-@router.api_route("/", methods=["GET", "POST"], response_model=ModelResponse)
+@router.get("/", response_model=ModelResponse)
 def run_simulation_and_predict(input: SimulationInput = Depends()):
     """
     Run the rule-based simulator and predict summary outcomes using the surrogate model.

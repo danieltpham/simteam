@@ -9,7 +9,7 @@ from simteam.core.enums import Role, EventType
 
 from datetime import datetime
 
-router = APIRouter(prefix="/eventlog", tags=["EventLog"])
+router = APIRouter(prefix="/eventlog", tags=["EVENT LOG"])
 
 @router.get("/", response_model=List[EventLog])
 def get_all_eventlogs(db: Session = Depends(get_db)):
