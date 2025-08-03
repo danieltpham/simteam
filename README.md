@@ -11,7 +11,9 @@
 
 ### 🧠 S.I.M.T.E.A.M
 
-A full-stack analytics & AI platform for organisational design, built with commercial-grade technologies and shaped by real enterprise experience.
+A full-stack analytics & AI platform for organisational design, built with commercial-grade technologies and shaped by real enterprise experience. 
+
+_A personal project by © 2025 Daniel Pham._
 
 ---
 
@@ -27,6 +29,14 @@ A full-stack analytics & AI platform for organisational design, built with comme
 
 ## System Overview
 
+![FastAPI](https://img.shields.io/badge/FastAPI-05998B?style=for-the-badge\&logo=fastapi\&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge\&logo=postgresql\&logoColor=white)
+![PydanticAI](https://img.shields.io/badge/Pydantic-9442FF?style=for-the-badge&logo=pydantic)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge\&logo=streamlit\&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge\&logo=react)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge\&logo=docker&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/GCP-4285F4?style=for-the-badge\&logo=google-cloud\&logoColor=white)
+
 | Component             | Description                                                                |
 | --------------------- | -------------------------------------------------------------------------- |
 | **Simulation Engine** | Modular OOP logic to simulate daily events affecting workforce structure   |
@@ -36,16 +46,6 @@ A full-stack analytics & AI platform for organisational design, built with comme
 | **Meta Model**        | Surrogate model trained via FLAML to predict simulation outcomes           |
 | **Frontend**          | Streamlit + React (d3-org-chart) for dynamic organisational visualisation  |
 | **Deployment**        | Dockerised stack deployed to GCP Cloud Run with NGINX reverse proxy        |
-
-### Tech Stack
-
-![FastAPI](https://img.shields.io/badge/FastAPI-05998B?style=for-the-badge\&logo=fastapi\&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge\&logo=postgresql\&logoColor=white)
-![PydanticAI](https://img.shields.io/badge/Pydantic-9442FF?style=for-the-badge&logo=pydantic)
-![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge\&logo=streamlit\&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge\&logo=react)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge\&logo=docker&logoColor=white)
-![Google Cloud](https://img.shields.io/badge/GCP-4285F4?style=for-the-badge\&logo=google-cloud\&logoColor=white)
 
 ---
 
