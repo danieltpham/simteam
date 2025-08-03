@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Quantico:wght@400;700&display=swap');
 
+/* hide the ... (three dots) menu */
+#MainMenu {visibility: hidden;}
+
 html, body, [class*="css"] {
     font-family: 'Quantico';
     color: #D8F3FF;
