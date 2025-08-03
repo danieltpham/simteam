@@ -4,6 +4,7 @@ from fastapi.openapi.docs import (
     get_swagger_ui_html,
     get_swagger_ui_oauth2_redirect_html,
 )
+from fastapi.openapi.utils import get_openapi
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,6 +17,21 @@ app = FastAPI(
     redoc_url=None,
     openapi_url="/openapi.json"
 )
+
+# Provide a valid OpenAPI schema with version
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="SimTeam API",
+        version="1.0.0",  # required!
+        description="SimTeam service documentation",
+        routes=app.routes,
+    )
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 
 # Mount local static folder to serve custom.css
 app.mount("/static", StaticFiles(directory="simteam/server/api/static"), name="static")
@@ -38,18 +54,18 @@ app.include_router(simulate.router, prefix="/v1")
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
     html = get_swagger_ui_html(
-        openapi_url=app.openapi_url, # type: ignore
+        openapi_url=app.openapi_url,  # type: ignore
         title="SimTeam API - Swagger UI",
         swagger_js_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js",
         swagger_css_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css",
-    ).body.decode() # type: ignore
+    ).body.decode()  # type: ignore
 
     # Inject custom CSS into the <head> section
     inject_css = '<link rel="stylesheet" type="text/css" href="/api/static/custom.css">'
     html = html.replace("</head>", f"{inject_css}</head>")
     return HTMLResponse(content=html)
 
-# Required for OAuth2 (even if unused)
+# Required for OAuth2 redirect (even if unused)
 @app.get("/docs/oauth2-redirect", include_in_schema=False)
 async def swagger_ui_redirect():
     return get_swagger_ui_oauth2_redirect_html()
