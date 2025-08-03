@@ -1,11 +1,19 @@
-# 🧠 S.I.M.T.E.A.M
+<div align="center">
+  <a href="https://simteam.danielpham.com.au/">
+    <img src="docs/hero.png" alt="Pydantic AI">
+  </a>
+</div>
+<div align="center">
+  <em>Simulate. Predict. Explain. Optimise.</em>
+</div>
 
-![https://simteam.danielpham.com.au/](docs/hero.png)
+---
 
-https://simteam.danielpham.com.au/
+### 🧠 S.I.M.T.E.A.M
 
-> **"Simulate. Predict. Explain. Optimise."**
-> A full-stack analytics & AI platform for organisational design, built with commercial-grade technologies and shaped by real enterprise experience.
+A full-stack analytics & AI platform for organisational design, built with commercial-grade technologies and shaped by real enterprise experience.
+
+---
 
 ## Includes
 
