@@ -9,8 +9,6 @@
 
 ---
 
-### 🧠 S.I.M.T.E.A.M
-
 A full-stack analytics & AI platform for organisational design, built with commercial-grade technologies and shaped by real enterprise experience. 
 
 _A personal project by © 2025 Daniel Pham._
@@ -24,8 +22,6 @@ _A personal project by © 2025 Daniel Pham._
 * A **stateless natural language assistant** that converts plain English into secure SQL queries
 * A **machine learning meta-model** to approximate simulation outcomes using AutoML
 * An **interactive frontend** combining Streamlit with a custom React org chart
-
----
 
 ## System Overview
 
@@ -47,9 +43,7 @@ _A personal project by © 2025 Daniel Pham._
 | **Frontend**          | Streamlit + React (d3-org-chart) for dynamic organisational visualisation  |
 | **Deployment**        | Dockerised stack deployed to GCP Cloud Run with NGINX reverse proxy        |
 
----
-
-## Key Interface Features
+## Streamlit Features
 
 ### Organisation Chart
 
@@ -80,9 +74,7 @@ Powered by FLAML for lightweight hyperparameter tuning.
 * Employee count time series with simulation trace
 * Sidebar-driven filtering and playback
 
----
-
-## Simulation Logic
+## Data Simulation Logic
 
 The simulation is modular and rule-based. Logic modules include:
 
@@ -97,9 +89,8 @@ Simulation adheres to a 6-tier hierarchy:
 
 All logic is housed in [`simteam/core`](simteam/core), with Pydantic-based data models for simulation state and events.
 
----
 
-## Architecture
+## Project Structure
 
 ```
 simteam/
@@ -114,8 +105,6 @@ simteam/
 └── Dockerfile             # Container setup for GCP/Cloud Run
 ```
 
----
-
 ## Running Locally
 
 ```bash
@@ -124,14 +113,7 @@ uvicorn simteam.server.main:app --reload
 
 # Frontend
 streamlit run simteam/ui/main.py
-
-# Org chart component
-cd simteam/ui/components/org_chart_component
-npm install
-npm run build
 ```
-
----
 
 ## Deployment
 
@@ -139,16 +121,12 @@ npm run build
 * Designed for GCP Cloud Run + Cloudflare Load Balancer
 * NGINX reverse proxy with env-based dynamic configuration
 
----
-
 ## Usage Guidelines
 
 * Use the sidebar to explore historical org snapshots by date
 * Ask natural language questions (e.g. “Who was promoted last week?”)
 * Simulate future scenarios and compare with surrogate predictions
 * Use SQL inspector to verify query safety and transparency
-
----
 
 ## Planned Enhancements
 
